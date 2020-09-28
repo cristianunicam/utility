@@ -1,0 +1,22 @@
+{
+  "name": "utility",
+  "version": "1.0.0",
+  "description": "App \"Utility\" as thesis for Camerino university",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cristianunicam/utility.git"
+  },
+  "author": "Cristian Verdecchia",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/cristianunicam/utility/issues"
+  },
+  "homepage": "https://github.com/cristianunicam/utility#readme",
+  "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.1.8"
+  }
+}
