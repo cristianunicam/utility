@@ -1,2 +1,2 @@
 # utility
-App "Utility" as thesis for Camerino university
+Server side for app request
