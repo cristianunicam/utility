@@ -1,4 +1,21 @@
-const {Client} = require("@googlemaps/google-maps-services-js");
+const express = require("express");
+const app = express();
+const PORT  = process.env.PORT  || 3000;
+
+const route = require("./structure/route.js");
+app.use("/path",route);
+
+app.listen(
+    PORT,
+    err => {
+      if(err){
+        return console.log("ERROR ",err);
+      }
+      console.log(`Listening at http://localhost:${PORT}`);
+    }
+  );
+
+/*const {Client} = require("@googlemaps/google-maps-services-js");
 const client = new Client({});
 
 client
@@ -21,4 +38,4 @@ client
   })
   .catch((e) => {
     console.log(e.response.data.error_message);
-  });
+  });*/
