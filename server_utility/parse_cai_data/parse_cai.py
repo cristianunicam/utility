@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as soup
 cai_url = 'https://www.caifabriano.it/wp/cpc/elenco-sentieri/'
 csvFile='data.csv'
 csv=open(csvFile,'w')
-headers="id,CAI section,difficulty,time,km,ascent"
+headers="id,CAI section,difficulty,time,km,ascent\n"
 csv.write(headers)
 
 # Opening up connection, grab the content

@@ -5,6 +5,9 @@ var gpxParse = require("gpx-parse");
 let route = express();
 var builtPath;
 
+var routeData={};
+
+
 const csvFile = "./parse_cai_data/data.csv";
 const results = [];
 
@@ -36,10 +39,6 @@ function parseCSV(id){
         .on('data', (data) => results.push(data))
         .on('end', () => {
             console.log(results.filter(block => block.id==id));
-            // [
-            //   { NAME: 'Daffy Duck', AGE: '24' },
-            //   { NAME: 'Bugs Bunny', AGE: '22' }
-            // ]
         });
 }
 

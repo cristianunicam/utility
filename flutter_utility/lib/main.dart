@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter GoogleMaps Demo',
       theme: ThemeData(
-        primaryColor: Color(0xff6200ee),
+        primaryColor: Color(0xFF90CAF9),
       ),
       home: HomePage(),
     );
