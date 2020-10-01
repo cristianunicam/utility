@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class HomePage extends StatefulWidget {
+class MapPage extends StatefulWidget {
   @override
-  HomePageState createState() => HomePageState();
+  MapPageState createState() => MapPageState();
 }
 
-class HomePageState extends State<HomePage> {
+class MapPageState extends State<MapPage> {
   Completer<GoogleMapController> _controller = Completer();
 
   @override
@@ -16,73 +16,71 @@ class HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  double zoomVal = 5.0;
+  double zoom_val = 5.0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(FontAwesomeIcons.arrowLeft),
-            onPressed: () {
-              //
-            }),
-        title: Text("New York"),
+          icon: Icon(FontAwesomeIcons.arrowLeft),
+          onPressed: () {},
+        ),
+        title: Text("Itinerario selezionato"),
         actions: <Widget>[
           IconButton(
-              icon: Icon(FontAwesomeIcons.search),
-              onPressed: () {
-                //
-              }),
+            icon: Icon(FontAwesomeIcons.search),
+            onPressed: () {},
+          ),
         ],
       ),
       body: Stack(
         children: <Widget>[
-          _buildGoogleMap(context),
-          _zoomminusfunction(),
-          _zoomplusfunction(),
-          _buildContainer(),
+          _build_google_map(context),
+          _zoom_minus_function(),
+          _zoom_plus_function(),
+          _build_bottom_container(),
         ],
       ),
     );
   }
 
-  Widget _zoomminusfunction() {
+  Widget _zoom_minus_function() {
     return Align(
       alignment: Alignment.topLeft,
       child: IconButton(
           icon: Icon(FontAwesomeIcons.searchMinus, color: Color(0xff6200ee)),
           onPressed: () {
-            zoomVal--;
-            _minus(zoomVal);
+            zoom_val--;
+            _minus(zoom_val);
           }),
     );
   }
 
-  Widget _zoomplusfunction() {
+  Widget _zoom_plus_function() {
     return Align(
       alignment: Alignment.topRight,
       child: IconButton(
           icon: Icon(FontAwesomeIcons.searchPlus, color: Color(0xff6200ee)),
           onPressed: () {
-            zoomVal++;
-            _plus(zoomVal);
+            zoom_val++;
+            _plus(zoom_val);
           }),
     );
   }
 
-  Future<void> _minus(double zoomVal) async {
+  Future<void> _minus(double zoom_val) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoomVal)));
+        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoom_val)));
   }
 
-  Future<void> _plus(double zoomVal) async {
+  Future<void> _plus(double zoom_val) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoomVal)));
+        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoom_val)));
   }
 
-  Widget _buildContainer() {
+  Widget _build_bottom_container() {
     return Align(
       alignment: Alignment.bottomLeft,
       child: Container(
@@ -94,29 +92,20 @@ class HomePageState extends State<HomePage> {
             SizedBox(width: 10.0),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: _boxes(
-                  "https://lh5.googleusercontent.com/p/AF1QipO3VPL9m-b355xWeg4MXmOQTauFAEkavSluTtJU=w225-h160-k-no",
-                  40.738380,
-                  -73.988426,
-                  "Gramercy Tavern"),
+              child: _boxes("assets/images/marche.jpg", 40.738380, -73.988426,
+                  "Sentiero 200"),
             ),
             SizedBox(width: 10.0),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: _boxes(
-                  "https://lh5.googleusercontent.com/p/AF1QipMKRN-1zTYMUVPrH-CcKzfTo6Nai7wdL7D8PMkt=w340-h160-k-no",
-                  40.761421,
-                  -73.981667,
-                  "Le Bernardin"),
+              child: _boxes("assets/images/marche.jpg", 40.761421, -73.981667,
+                  "Sentiero 225"),
             ),
             SizedBox(width: 10.0),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: _boxes(
-                  "https://images.unsplash.com/photo-1504940892017-d23b9053d5d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
-                  40.732128,
-                  -73.999619,
-                  "Blue Hill"),
+              child: _boxes("assets/images/marche.jpg", 40.732128, -73.999619,
+                  "Sentiero 226"),
             ),
           ],
         ),
@@ -127,7 +116,7 @@ class HomePageState extends State<HomePage> {
   Widget _boxes(String _image, double lat, double long, String restaurantName) {
     return GestureDetector(
       onTap: () {
-        _gotoLocation(lat, long);
+        _go_to_location(lat, long);
       },
       child: Container(
         child: new FittedBox(
@@ -144,16 +133,20 @@ class HomePageState extends State<HomePage> {
                     height: 200,
                     child: ClipRRect(
                       borderRadius: new BorderRadius.circular(24.0),
-                      child: Image(
+                      child: Image.asset(
+                        _image,
+                        fit: BoxFit.cover,
+                      ),
+                      /*child: Image(
                         fit: BoxFit.fill,
                         image: NetworkImage(_image),
-                      ),
+                      ),*/
                     ),
                   ),
                   Container(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: myDetailsContainer1(restaurantName),
+                      child: container_details(restaurantName),
                     ),
                   ),
                 ],
@@ -163,7 +156,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget myDetailsContainer1(String restaurantName) {
+  Widget container_details(String restaurantName) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -180,17 +173,18 @@ class HomePageState extends State<HomePage> {
         ),
         SizedBox(height: 5.0),
         Container(
-            child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Container(
-                child: Text(
-              "4.1",
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 18.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              /*Container(
+              child: Text(
+                "4.1",
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 18.0,
+                ),
               ),
-            )),
+            ),
             Container(
               child: Icon(
                 FontAwesomeIcons.solidStar,
@@ -233,32 +227,35 @@ class HomePageState extends State<HomePage> {
                 color: Colors.black54,
                 fontSize: 18.0,
               ),
-            )),
-          ],
-        )),
-        SizedBox(height: 5.0),
-        Container(
-            child: Text(
-          "American \u00B7 \u0024\u0024 \u00B7 1.6 mi",
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 18.0,
+            ),),*/
+            ],
           ),
-        )),
+        ),
         SizedBox(height: 5.0),
-        Container(
-            child: Text(
-          "Closed \u00B7 Opens 17:00 Thu",
-          style: TextStyle(
+        /*Container(
+          child: Text(
+            "American \u00B7 \u0024\u0024 \u00B7 1.6 mi",
+            style: TextStyle(
               color: Colors.black54,
               fontSize: 18.0,
-              fontWeight: FontWeight.bold),
-        )),
+            ),
+          ),
+        ),*/
+        SizedBox(height: 5.0),
+        /*Container(
+          child: Text(
+            "Closed \u00B7 Opens 17:00 Thu",
+            style: TextStyle(
+                color: Colors.black54,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold),
+          ),
+        ),*/
       ],
     );
   }
 
-  Widget _buildGoogleMap(BuildContext context) {
+  Widget _build_google_map(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -270,18 +267,18 @@ class HomePageState extends State<HomePage> {
           _controller.complete(controller);
         },
         markers: {
-          newyork1Marker,
+          /*newyork1Marker,
           newyork2Marker,
           newyork3Marker,
           gramercyMarker,
           bernardinMarker,
-          blueMarker
+          blueMarker*/
         },
       ),
     );
   }
 
-  Future<void> _gotoLocation(double lat, double long) async {
+  Future<void> _go_to_location(double lat, double long) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: LatLng(lat, long),
@@ -291,7 +288,7 @@ class HomePageState extends State<HomePage> {
     )));
   }
 }
-
+/*
 Marker gramercyMarker = Marker(
   markerId: MarkerId('gramercy'),
   position: LatLng(40.738380, -73.988426),
@@ -344,3 +341,4 @@ Marker newyork3Marker = Marker(
     BitmapDescriptor.hueViolet,
   ),
 );
+*/

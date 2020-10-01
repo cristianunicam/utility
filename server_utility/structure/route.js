@@ -1,29 +1,28 @@
 const express = require("express");
 const csv=require('csv-parser')
-const csvToJson=require('csvtojson')
+const csv_to_json=require('csv_to_json')
 const fs = require('fs')
-var gpxParse = require("gpx-parse");
+var gpx_parse = require("gpx-parse");
 let route = express();
 
-var builtPathGPXFile;
-var routeData;
-const csvFile = "./parse_cai_data/data.csv";
+var route_data;
+const csv_file = "./parse_cai_data/data.csv";
 
 route
     .route("/:id")
     .get((req, res) => {
         //res.send("GET ID: "+req.params.id);
-        builtPath = "./route_gpx/"+req.params.id+".gpx";
+        built_path = "./route_gpx/"+req.params.id+".gpx";
         parseCSV(req.params.id,res)
-        //res.send(parseGPX(builtPath));
+        //res.send(parseGPX(built_path));
     });
 
 
 
 
-function parseGPX(idPath){
-    console.log("ID PATH: "+idPath);
-    return gpxParse.parseGpxFromFile(idPath,
+function parseGPX(id_path){
+    console.log("ID PATH: "+id_path);
+    return gpx_parse.parseGpxFromFile(id_path,
         function(error, result) {
             if(error != null)
                 console.log("ERROR! File not found");
@@ -38,17 +37,17 @@ function parseGPX(idPath){
 
 
 function parseCSV(id,res){
-    csvToJson()
-        .fromFile(csvFile)
-        .then((jsonObj)=>{
-            this.routeData=jsonObj
-            var foundItem = this.routeData.filter(function(item) {
+    csv_to_json()
+        .fromFile(csv_file)
+        .then((json_obj)=>{
+            this.route_data=json_obj
+            var found_item = this.route_data.filter(function(item) {
                 return item.id == id;
             });
-            console.log(foundItem);
-            res.send(foundItem);
+            console.log(found_item);
+            res.send(found_item);
         })
-    /*var data = fs.readFileSync(csvFile)
+    /*var data = fs.readFileSync(csv_file)
     .toString() // convert Buffer to string
     .split('\n') // split string to lines
     .map(e => e.trim()) // remove white spaces for each line
@@ -56,7 +55,7 @@ function parseCSV(id,res){
 
     console.log(data);
     console.log(JSON.stringify(data, '', 2));*/
-    /*fs.createReadStream(csvFile)
+    /*fs.createReadStream(csv_file)
         .pipe(csv())
         .on('data', (data) => results.push(data))
         .on('end', () => {

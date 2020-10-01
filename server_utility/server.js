@@ -1,10 +1,9 @@
 const express = require("express");
 const app = express();
 const PORT  = process.env.PORT  || 3000;
+const ROUTE = require("./structure/route.js");
 
-const route = require("./structure/route.js");
-app.use("/path",route);
-
+app.use("/path",ROUTE);
 app.listen(
     PORT,
     err => {

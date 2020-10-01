@@ -1,19 +1,19 @@
 from os import write
-from urllib.request import urlopen as uReq
+from urllib.request import urlopen as u_req
 from bs4 import BeautifulSoup as soup
 
 cai_url = 'https://www.caifabriano.it/wp/cpc/elenco-sentieri/'
-csvFile='data.csv'
-csv=open(csvFile,'w')
+csv_file='data.csv'
+csv=open(csv_file,'w')
 headers="id,CAI section,difficulty,time,km,ascent\n"
 csv.write(headers)
 
 # Opening up connection, grab the content
-uClient = uReq(cai_url)
-page_html = uClient.read()
+u_client = u_req(cai_url)
+page_html = u_client.read()
 
 # Close connection
-uClient.close
+u_client.close
 
 # HTML parsing
 page_soup = soup(page_html,"html.parser")
@@ -22,7 +22,7 @@ page_soup = soup(page_html,"html.parser")
 table_row = page_soup.find_all("tr")
 
 # Index for cycling the table
-trIndex=0
+tr_index=0
 
 # Cycle all the rows in the table
 for tr in table_row:
@@ -48,51 +48,51 @@ for tr in table_row:
                 id=text
             # Get the data from the second column
             elif cont==2:
-                listaTesto=list(text)
+                text_list=list(text)
                 # Replace comma
-                characterIndex=0
-                for character in listaTesto:
+                character_index=0
+                for character in text_list:
                     if character==',':
-                        asciiCharacterOfTheNextCharacter=ord(listaTesto[characterIndex+1])
-                        if (not asciiCharacterOfTheNextCharacter<58) or asciiCharacterOfTheNextCharacter==32:
-                            listaTesto[characterIndex]=''
-                    characterIndex+=1
-                text=''.join(listaTesto)
+                        ascii_character_of_the_next_character=ord(text_list[character_index+1])
+                        if (not ascii_character_of_the_next_character<58) or ascii_character_of_the_next_character==32:
+                            text_list[character_index]=''
+                    character_index+=1
+                text=''.join(text_list)
                 # Cancel text
                 if text[text.find("Sentiero vecchio: ")] == 'S':
                     text=text[18:]
 
                 # Cancel text
-                difficultyIndex=text.find("Difficoltà: ")
-                if difficultyIndex > 0:
-                    text=text[:difficultyIndex]+text[difficultyIndex+12:]
+                difficulty_index=text.find("Difficoltà: ")
+                if difficulty_index > 0:
+                    text=text[:difficulty_index]+text[difficulty_index+12:]
 
                 # Cancel text
-                timeIndex=text.find("Tempo: ")
-                if timeIndex > 0:
-                    text=text[:timeIndex]+text[timeIndex+7:]
-                    textList=list(text)
-                    textList[timeIndex-1]='|'
-                    textList[timeIndex+4]='|'
-                    text="".join(textList)
+                time_index=text.find("Tempo: ")
+                if time_index > 0:
+                    text=text[:time_index]+text[time_index+7:]
+                    text_list=list(text)
+                    text_list[time_index-1]='|'
+                    text_list[time_index+4]='|'
+                    text="".join(text_list)
 
                 # Cancel text
-                kmIndex=text.find("Km: ")
-                if kmIndex > 0:
-                    text=text[:kmIndex]+text[kmIndex+4:]
+                km_index=text.find("Km: ")
+                if km_index > 0:
+                    text=text[:km_index]+text[km_index+4:]
 
                 # Cancel text
-                ascentIndex=text.find("Ascesa m: ")
-                if ascentIndex > 0:
-                    text=text[:ascentIndex]+text[ascentIndex+10:]
-                    textList=list(text)
-                    textList[ascentIndex-1]='|'
-                    text=''.join(textList)
+                ascent_index=text.find("Ascesa m: ")
+                if ascent_index > 0:
+                    text=text[:ascent_index]+text[ascent_index+10:]
+                    text_list=list(text)
+                    text_list[ascent_index-1]='|'
+                    text=''.join(text_list)
 
                 # Cancel text
-                sezIndex=text.find("Sez.CAI")
-                if sezIndex > 0:
-                    text=text[sezIndex+23:]
+                sez_index=text.find("Sez.CAI")
+                if sez_index > 0:
+                    text=text[sez_index+23:]
 
                 # Replace comma for km
                 text=text.replace(',','^')
@@ -105,18 +105,18 @@ for tr in table_row:
 
                 # Get download link
                 for a in td.div.find_all('a', href=True):
-                    downloadLink=a['href']
+                    download_link=a['href']
                 # Download gpx files
-                filedata = uReq(downloadLink)
-                dataToWrite=filedata.read()
+                file_data = u_req(download_link)
+                data_to_write=file_data.read()
                 with open('route_gpx/'+id+".gpx",'wb') as f:
-                    f.write(dataToWrite)
+                    f.write(data_to_write)
                     f.close()
         # Write data inside csv
         csv.write(id + ',' + information + '\n')
         # Print formatted data
-        print("\nID: "+id+"\nINFORMATION: "+information+"\nLink download: "+downloadLink)
+        print("\nID: "+id+"\nINFORMATION: "+information+"\nLink download: "+download_link)
         # Change row to check
-        trIndex+=1
+        tr_index+=1
 # Close csv file
 csv.close()

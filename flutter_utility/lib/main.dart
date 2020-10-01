@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart';
+import 'mappage.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter GoogleMaps Demo',
+      title: 'Utility',
       theme: ThemeData(
         primaryColor: Color(0xFF90CAF9),
       ),
-      home: HomePage(),
+      home: MapPage(),
     );
   }
 }
