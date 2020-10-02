@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'gmaps_slider.dart';
+import 'map_page/structure.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+  static BuildContext context;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -12,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color(0xFF90CAF9),
       ),
-      home: GMapSlider(),
+      home: AppStructure(),
     );
   }
 }

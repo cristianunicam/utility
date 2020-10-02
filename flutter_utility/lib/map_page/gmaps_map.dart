@@ -11,13 +11,13 @@ class MapPage extends StatefulWidget {
 class MapPageState extends State<MapPage> {
   GoogleMapController _controller;
   bool isMapCreated = false;
+  double zoomVal = 5.0;
 
   @override
   void initState() {
     super.initState();
   }
 
-  double zoomVal = 5.0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
