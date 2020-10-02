@@ -16,11 +16,11 @@ class MapPageState extends State<MapPage> {
     super.initState();
   }
 
-  double zoom_val = 5.0;
+  double zoomVal = 5.0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         leading: IconButton(
           icon: Icon(FontAwesomeIcons.arrowLeft),
           onPressed: () {},
@@ -32,55 +32,58 @@ class MapPageState extends State<MapPage> {
             onPressed: () {},
           ),
         ],
-      ),
+      ),*/
       body: Stack(
         children: <Widget>[
-          _build_google_map(context),
-          _zoom_minus_function(),
-          _zoom_plus_function(),
-          _build_bottom_container(),
+          _buildGoogleMap(context),
+          _zoomMinusFunction(),
+          _zoomPlusFunction(),
+          // _buildBottomContainer(),
         ],
       ),
     );
   }
 
-  Widget _zoom_minus_function() {
+  Widget _zoomMinusFunction() {
     return Align(
       alignment: Alignment.topLeft,
       child: IconButton(
-          icon: Icon(FontAwesomeIcons.searchMinus, color: Color(0xff6200ee)),
+          icon: Icon(
+            FontAwesomeIcons.searchMinus,
+            color: Color(0xff6200ee),
+          ),
           onPressed: () {
-            zoom_val--;
-            _minus(zoom_val);
+            zoomVal--;
+            _minus(zoomVal);
           }),
     );
   }
 
-  Widget _zoom_plus_function() {
+  Widget _zoomPlusFunction() {
     return Align(
       alignment: Alignment.topRight,
       child: IconButton(
           icon: Icon(FontAwesomeIcons.searchPlus, color: Color(0xff6200ee)),
           onPressed: () {
-            zoom_val++;
-            _plus(zoom_val);
+            zoomVal++;
+            _plus(zoomVal);
           }),
     );
   }
 
-  Future<void> _minus(double zoom_val) async {
+  Future<void> _minus(double zoomVal) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoom_val)));
+        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoomVal)));
   }
 
-  Future<void> _plus(double zoom_val) async {
+  Future<void> _plus(double zoomVal) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoom_val)));
+        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoomVal)));
   }
 
-  Widget _build_bottom_container() {
+  /*Widget _buildBottomContainer() {
     return Align(
       alignment: Alignment.bottomLeft,
       child: Container(
@@ -116,7 +119,7 @@ class MapPageState extends State<MapPage> {
   Widget _boxes(String _image, double lat, double long, String restaurantName) {
     return GestureDetector(
       onTap: () {
-        _go_to_location(lat, long);
+        _goToLocation(lat, long);
       },
       child: Container(
         child: new FittedBox(
@@ -146,7 +149,7 @@ class MapPageState extends State<MapPage> {
                   Container(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: container_details(restaurantName),
+                      child: containerDetails(restaurantName),
                     ),
                   ),
                 ],
@@ -156,7 +159,7 @@ class MapPageState extends State<MapPage> {
     );
   }
 
-  Widget container_details(String restaurantName) {
+  Widget containerDetails(String restaurantName) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -253,9 +256,9 @@ class MapPageState extends State<MapPage> {
         ),*/
       ],
     );
-  }
+  }*/
 
-  Widget _build_google_map(BuildContext context) {
+  Widget _buildGoogleMap(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -267,18 +270,18 @@ class MapPageState extends State<MapPage> {
           _controller.complete(controller);
         },
         markers: {
-          /*newyork1Marker,
+          newyork1Marker,
           newyork2Marker,
           newyork3Marker,
           gramercyMarker,
           bernardinMarker,
-          blueMarker*/
+          blueMarker
         },
       ),
     );
   }
 
-  Future<void> _go_to_location(double lat, double long) async {
+  Future<void> _goToLocation(double lat, double long) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: LatLng(lat, long),
@@ -288,7 +291,7 @@ class MapPageState extends State<MapPage> {
     )));
   }
 }
-/*
+
 Marker gramercyMarker = Marker(
   markerId: MarkerId('gramercy'),
   position: LatLng(40.738380, -73.988426),
@@ -341,4 +344,3 @@ Marker newyork3Marker = Marker(
     BitmapDescriptor.hueViolet,
   ),
 );
-*/
