@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'map_page.dart';
+import 'gmaps_slider.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color(0xFF90CAF9),
       ),
-      home: MapPage(),
+      home: GMapSlider(),
     );
   }
 }
