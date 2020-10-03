@@ -13,7 +13,8 @@ route
     .get((req, res) => {
         //res.send("GET ID: "+req.params.id);
         built_path = "./route_gpx/"+req.params.id+".gpx";
-        parseCSV(req.params.id,res)
+        var jsonResponse;
+        parseCSV(req.params.id,jsonResponse)
         //res.send(parseGPX(built_path));
     });
 
@@ -36,7 +37,7 @@ function parseGPX(id_path){
 
 
 
-function parseCSV(id,res){
+function parseCSV(id,jsonResponse){
     csv_to_json()
         .fromFile(csv_file)
         .then((json_obj)=>{
@@ -45,7 +46,7 @@ function parseCSV(id,res){
                 return item.id == id;
             });
             console.log(found_item);
-            res.send(found_item);
+            jsonResponse = found_item;
         })
     /*var data = fs.readFileSync(csv_file)
     .toString() // convert Buffer to string

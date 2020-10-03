@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class MapPage extends StatefulWidget {
 }
 
 class MapPageState extends State<MapPage> {
+  Position _currentPosition;
   GoogleMapController _controller;
   bool isMapCreated = false;
   double zoomVal = 5.0;
@@ -21,56 +23,17 @@ class MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomPadding: true,
       body: Stack(
         children: <Widget>[
           _buildGoogleMap(context),
-          //_zoomMinusFunction(),
-          //_zoomPlusFunction(),
+          _buildLocationButton(context),
         ],
       ),
     );
   }
 
-/*
-  Widget _zoomMinusFunction() {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: IconButton(
-          icon: Icon(
-            FontAwesomeIcons.searchMinus,
-            color: Color(0xff6200ee),
-          ),
-          onPressed: () {
-            zoomVal--;
-            _minus(zoomVal);
-          }),
-    );
-  }
-
-  Widget _zoomPlusFunction() {
-    return Align(
-      alignment: Alignment.topRight,
-      child: IconButton(
-          icon: Icon(FontAwesomeIcons.searchPlus, color: Color(0xff6200ee)),
-          onPressed: () {
-            zoomVal++;
-            _plus(zoomVal);
-          }),
-    );
-  }
-
-  Future<void> _minus(double zoomVal) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoomVal)));
-  }
-
-  Future<void> _plus(double zoomVal) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(40.712776, -74.005974), zoom: zoomVal)));
-  }
-*/
   changeMapMode() {
     getJsonFile("assets/map_theme/grey_theme.json").then(setMapStyle);
     //TODO YOU COULD CHANGE WITH A DIFFERENT STYLE
@@ -95,7 +58,12 @@ class MapPageState extends State<MapPage> {
       child: GoogleMap(
         mapType: MapType.normal,
         initialCameraPosition: CameraPosition(
-          target: LatLng(40.712776, -74.005974),
+          target: _currentPosition != null
+              ? LatLng(_currentPosition.latitude, _currentPosition.longitude)
+              : {
+                  _getCurrentLocation(),
+                  LatLng(_currentPosition.latitude, _currentPosition.longitude)
+                },
           zoom: 12,
         ),
         onMapCreated: (GoogleMapController controller) {
@@ -116,12 +84,54 @@ class MapPageState extends State<MapPage> {
     );
   }
 
+  _buildLocationButton(context) {
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+            16, 0, 0, MediaQuery.of(context).padding.bottom + 16),
+        child: ClipOval(
+          child: Material(
+            color: Colors.white, // button color
+            child: InkWell(
+              splashColor: Colors.blue, // inkwell color
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: Icon(Icons.my_location),
+              ),
+              onTap: () {
+                _getCurrentLocation();
+                _goToLocation(
+                  _currentPosition.latitude,
+                  _currentPosition.longitude,
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _goToLocation(double lat, double long) async {
-    _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      target: LatLng(lat, long),
-      zoom: 15,
-      tilt: 50.0,
-      bearing: 45.0,
-    )));
+    _controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(lat, long),
+          zoom: 15,
+          tilt: 0,
+          bearing: 45.0,
+        ),
+      ),
+    );
+  }
+
+  _getCurrentLocation() async {
+    await getCurrentPosition().then((Position position) {
+      setState(() {
+        _currentPosition = position;
+      });
+    }).catchError((e) => print(e));
   }
 }

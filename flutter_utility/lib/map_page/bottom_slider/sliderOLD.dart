@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
-import 'package:utility/bottom_slider/slider_header.dart';
-import 'package:utility/bottom_slider/slider_opened.dart';
+import 'slider_header.dart';
+import 'slider_opened.dart';
 
 import 'slider_closed.dart';
 import 'slider_footer.dart';

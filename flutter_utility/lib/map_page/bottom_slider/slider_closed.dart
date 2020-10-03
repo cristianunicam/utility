@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../map_page/gmaps_map.dart';
+import 'package:utility/map_page/gmaps_map.dart';
 
 /**
  * Build the map and top right bottom
@@ -13,7 +13,10 @@ class BuildClosedSliderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        MapPage(),
+        Padding(
+          padding: EdgeInsets.only(bottom: 70),
+          child: MapPage(),
+        ),
         Align(
           alignment: Alignment.topRight,
           child: Padding(

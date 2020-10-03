@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as soup
 cai_url = 'https://www.caifabriano.it/wp/cpc/elenco-sentieri/'
 csv_file='data.csv'
 csv=open(csv_file,'w')
-headers="id,CAI section,difficulty,time,km,ascent\n"
+headers="id,cai_section,difficulty,time,km,ascent,download_link\n"
 csv.write(headers)
 
 # Opening up connection, grab the content
@@ -113,7 +113,7 @@ for tr in table_row:
                     f.write(data_to_write)
                     f.close()
         # Write data inside csv
-        csv.write(id + ',' + information + '\n')
+        csv.write(id + ',' + information + ',' + download_link + '\n')
         # Print formatted data
         print("\nID: "+id+"\nINFORMATION: "+information+"\nLink download: "+download_link)
         # Change row to check

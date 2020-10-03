@@ -62,16 +62,11 @@ class ClosedSliderState extends State<ClosedSlider> {
 
     return CustomContainer(
       shadowDirection: ShadowDirection.top,
-      padding: EdgeInsets.only(
-        //TODO CHECK HOW TO CENTER THE BUTTON
-        left: (MediaQuery.of(context).size.width / 2) - 80,
-        top: 8,
-      ),
       color: Colors.white,
       shadowColor: Colors.black12,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          const SizedBox(width: 8),
           SheetListenerBuilder(
             buildWhen: (oldState, newState) =>
                 oldState.isExpanded != newState.isExpanded,
@@ -79,28 +74,24 @@ class ClosedSliderState extends State<ClosedSlider> {
               final isExpanded = state.isExpanded;
               //color: mapsBlue,
               return button(
-                  //TODO TO REMOVE, IT'S NOT DISPLAYED BECAUSE OF THE COMMENT IN THE BUTTON SECTION
-                  Icon(
-                    !isExpanded ? Icons.list : Icons.map,
-                    //color: mapsBlue,
+                //TODO TO REMOVE, IT'S NOT DISPLAYED BECAUSE OF THE COMMENT IN THE BUTTON SECTION
+                Icon(
+                  !isExpanded ? Icons.list : Icons.map,
+                  //color: mapsBlue,
+                ),
+                Text(
+                  !isExpanded ? 'Scopri di più' : 'Mostra la mappa',
+                  style: textStyle.copyWith(
+                    fontSize: 15,
                   ),
-                  Text(
-                    !isExpanded ? 'Scopri di più' : 'Mostra la mappa',
-                    style: textStyle.copyWith(
-                      fontSize: 15,
-                    ),
-                  ),
-                  !isExpanded
-                      ? () => widget.controller.scrollTo(state.maxScrollExtent)
-                      : widget.controller.collapse,
-                  color: Colors.white,
-                  // Remove border on button
-                  border: BorderSide.none
-                  /*border: BorderSide(
-                  color: Colors.grey.shade400,
-                  width: 2,
-                ),*/
-                  );
+                ),
+                !isExpanded
+                    ? () => widget.controller.scrollTo(state.maxScrollExtent)
+                    : widget.controller.collapse,
+                color: Colors.white,
+                // Remove border on button
+                border: BorderSide.none,
+              );
             },
           ),
         ],

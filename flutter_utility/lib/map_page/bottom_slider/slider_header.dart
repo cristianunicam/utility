@@ -26,11 +26,12 @@ class SliderHeaderState extends State<SliderHeader> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          // Build the grey line for scrolling the slider
           const SizedBox(height: 5),
           Align(
             alignment: Alignment.topCenter,
             child: CustomContainer(
-              width: 16,
+              width: 120,
               height: 4,
               borderRadius: 2,
               color: Colors.grey.withOpacity(

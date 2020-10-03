@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 
-import '../bottom_slider/slider_closed.dart';
-import '../bottom_slider/slider_footer.dart';
-import '../bottom_slider/slider_header.dart';
-import '../bottom_slider/slider_opened.dart';
+import 'bottom_slider/slider_closed.dart';
+import 'bottom_slider/slider_footer.dart';
+import 'bottom_slider/slider_header.dart';
+import 'bottom_slider/slider_opened.dart';
 
 class AppStructure extends StatefulWidget {
   @override
@@ -32,7 +32,8 @@ class AppStructureState extends State<AppStructure> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomPadding: true,
       body: Column(
         children: <Widget>[
           GestureDetector(
@@ -53,7 +54,7 @@ class AppStructureState extends State<AppStructure> {
               shadowColor: Colors.black26,
               elevation: 12,
               maxWidth: 500,
-              cornerRadius: 16,
+              cornerRadius: 35,
               cornerRadiusOnFullscreen: 0.0,
               closeOnBackdropTap: true,
               closeOnBackButtonPressed: true,
@@ -61,7 +62,7 @@ class AppStructureState extends State<AppStructure> {
               isBackdropInteractable: true,
               border: Border.all(
                 color: Colors.grey.shade300,
-                width: 3,
+                width: 2,
               ),
               snapSpec: SnapSpec(
                 snap: true,
