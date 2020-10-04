@@ -28,20 +28,9 @@ class Response {
     Map<String, dynamic> route = json['route'];
     debugPrint(route.toString());
     List<dynamic> gpx = json['gpx']['tracks'][0]['segments'][0];
-    //debugPrint(gpx.toString());
 
-    // BEGIN POLYLINE PART
-    // GoogleMapPolyline googleMapPolyline = new GoogleMapPolyline(
-    //  apiKey: "AIzaSyA2wycdOVHsdeQMtW1-1B9rzGqUuKo4J88");
+    // Begin polyline part
     List<LatLng> routeCoords = [];
-
-    /*_getPoints() async {
-      routeCoords = await googleMapPolyline.getCoordinatesWithLocation(
-        origin: null,
-        destination: null,
-        mode: RouteMode.walking,
-      );
-    }*/
 
     gpx.forEach((element) {
       routeCoords.add(
@@ -57,7 +46,7 @@ class Response {
       geodesic: true,
       points: routeCoords,
       width: 20,
-      color: Colors.yellow,
+      color: Colors.black38,
     );
 
     return Response(

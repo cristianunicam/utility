@@ -1,29 +1,34 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:utility/util/htpp_request.dart';
 import 'package:utility/util/response_structure.dart';
 
+import 'gmaps_marker.dart';
+
 class MapPage extends StatefulWidget {
-  Set<Polyline> _routePolyline = Set<Polyline>();
+  final String id;
+
+  MapPage({Key key, this.id}) : super(key: key);
 
   @override
   MapPageState createState() => MapPageState();
 }
 
 class MapPageState extends State<MapPage> {
+  Set<Marker> _markerSet = Set<Marker>();
+  Set<Polyline> _routePolyline = Set<Polyline>();
   Position _currentPosition;
   GoogleMapController _controller;
-  GoogleMap googleMap;
   bool isMapCreated = false;
-  double zoomVal = 5.0;
+  String routeId = "";
 
   @override
   void initState() {
     super.initState();
+    routeId = widget.id;
   }
 
   @override
@@ -40,23 +45,8 @@ class MapPageState extends State<MapPage> {
     );
   }
 
-  changeMapMode() {
-    getJsonFile("assets/map_theme/grey_theme.json").then(
-      setMapStyle,
-    );
-    //TODO YOU COULD CHANGE WITH A DIFFERENT STYLE
-  }
-
-  Future<String> getJsonFile(String path) async {
-    return await rootBundle.loadString(path);
-  }
-
-  void setMapStyle(String mapStyle) {
-    _controller.setMapStyle(mapStyle);
-  }
-
   Widget _buildGoogleMap(BuildContext context) {
-    /*    //TODO YOU COULD CHANGE WITH A DIFFERENT STYLE
+    /*
     if (isMapCreated) {
       changeMapMode();
     }*/
@@ -71,23 +61,22 @@ class MapPageState extends State<MapPage> {
               : LatLng(43.295329, 13.447757),
           zoom: 12,
         ),
-        onMapCreated: (GoogleMapController controller) {
-          _controller = controller;
-          //TODO YOU COULD CHANGE WITH A DIFFERENT STYLEisMapCreated = true;
-          changeMapMode();
-          setState(() {});
-        },
-        markers: {
-          /*newyork1Marker,
-          newyork2Marker,
-          newyork3Marker,
-          gramercyMarker,
-          bernardinMarker,
-          blueMarker*/
-        },
-        polylines: widget._routePolyline,
+        polylines: _routePolyline,
+        onMapCreated: (GoogleMapController controller) =>
+            _onMapCreated(controller),
+        markers: _markerSet,
       ),
     );
+  }
+
+  changeMapMode() {
+    getJsonFile("assets/map_theme/grey_theme.json").then(
+      (mapStyle) => _controller.setMapStyle(mapStyle),
+    );
+  }
+
+  Future<String> getJsonFile(String path) async {
+    return await rootBundle.loadString(path);
   }
 
   _buildLocationButton(context) {
@@ -107,17 +96,7 @@ class MapPageState extends State<MapPage> {
                 child: Icon(Icons.my_location),
               ),
               onTap: () {
-                Future<Response> futureResponse = fetchData("200");
-                setState(() {
-                  futureResponse.then((value) => {
-                        debugPrint(value.id.toString()),
-                        // _routePolyline.clear(),
-                        widget._routePolyline.add(
-                          value.polylineResult,
-                        ),
-                      });
-                });
-                //_goToCurrentLocation();
+                _goToCurrentLocation();
               },
             ),
           ),
@@ -133,7 +112,7 @@ class MapPageState extends State<MapPage> {
           target: LatLng(lat, long),
           zoom: 15,
           tilt: 0,
-          bearing: 45.0,
+          bearing: 0,
         ),
       ),
     );
@@ -146,5 +125,41 @@ class MapPageState extends State<MapPage> {
         _goToLocation(_currentPosition.latitude, _currentPosition.longitude);
       });
     }).catchError((e) => print(e));
+  }
+
+  _onMapCreated(GoogleMapController controller) {
+    _controller = controller;
+    //isMapCreated = true;
+    changeMapMode();
+    debugPrint("ID: " + routeId);
+    // Execute the request given an id
+    Future<Response> futureResponse = fetchData(routeId);
+    double startLatitude, startLongitude;
+
+    futureResponse.then((value) => {
+          // Draw the route
+          _routePolyline.clear(),
+          _routePolyline.add(value.polylineResult),
+          startLatitude = value.polylineResult.points.first.latitude,
+          startLongitude = value.polylineResult.points.first.longitude,
+
+          // Start waypoint
+          _markerSet.add(
+            new GMapsMarker().buildMarker(
+                "start", "Inizio percorso", startLatitude, startLongitude),
+          ),
+          // End waypoint
+          _markerSet.add(
+            GMapsMarker().buildMarker(
+              "end",
+              "Fine percorso",
+              value.polylineResult.points.last.latitude,
+              value.polylineResult.points.last.longitude,
+            ),
+          ),
+
+          _goToLocation(startLatitude, startLongitude),
+        });
+    futureResponse.whenComplete(() => setState(() {}));
   }
 }

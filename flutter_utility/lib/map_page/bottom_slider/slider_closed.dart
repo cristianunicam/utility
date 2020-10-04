@@ -15,7 +15,7 @@ class BuildClosedSliderPage extends StatelessWidget {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(bottom: 70),
-          child: MapPage(),
+          child: MapPage(id: "200"),
         ),
         Align(
           alignment: Alignment.topRight,
