@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:utility/util/htpp_request.dart';
+import 'package:utility/util/response_structure.dart';
 
 class MapPage extends StatefulWidget {
+  Set<Polyline> _routePolyline = Set<Polyline>();
+
   @override
   MapPageState createState() => MapPageState();
 }
@@ -12,6 +17,7 @@ class MapPage extends StatefulWidget {
 class MapPageState extends State<MapPage> {
   Position _currentPosition;
   GoogleMapController _controller;
+  GoogleMap googleMap;
   bool isMapCreated = false;
   double zoomVal = 5.0;
 
@@ -35,7 +41,9 @@ class MapPageState extends State<MapPage> {
   }
 
   changeMapMode() {
-    getJsonFile("assets/map_theme/grey_theme.json").then(setMapStyle);
+    getJsonFile("assets/map_theme/grey_theme.json").then(
+      setMapStyle,
+    );
     //TODO YOU COULD CHANGE WITH A DIFFERENT STYLE
   }
 
@@ -60,10 +68,7 @@ class MapPageState extends State<MapPage> {
         initialCameraPosition: CameraPosition(
           target: _currentPosition != null
               ? LatLng(_currentPosition.latitude, _currentPosition.longitude)
-              : {
-                  _getCurrentLocation(),
-                  LatLng(_currentPosition.latitude, _currentPosition.longitude)
-                },
+              : LatLng(43.295329, 13.447757),
           zoom: 12,
         ),
         onMapCreated: (GoogleMapController controller) {
@@ -80,6 +85,7 @@ class MapPageState extends State<MapPage> {
           bernardinMarker,
           blueMarker*/
         },
+        polylines: widget._routePolyline,
       ),
     );
   }
@@ -101,11 +107,17 @@ class MapPageState extends State<MapPage> {
                 child: Icon(Icons.my_location),
               ),
               onTap: () {
-                _getCurrentLocation();
-                _goToLocation(
-                  _currentPosition.latitude,
-                  _currentPosition.longitude,
-                );
+                Future<Response> futureResponse = fetchData("200");
+                setState(() {
+                  futureResponse.then((value) => {
+                        debugPrint(value.id.toString()),
+                        // _routePolyline.clear(),
+                        widget._routePolyline.add(
+                          value.polylineResult,
+                        ),
+                      });
+                });
+                //_goToCurrentLocation();
               },
             ),
           ),
@@ -127,10 +139,11 @@ class MapPageState extends State<MapPage> {
     );
   }
 
-  _getCurrentLocation() async {
+  _goToCurrentLocation() async {
     await getCurrentPosition().then((Position position) {
       setState(() {
         _currentPosition = position;
+        _goToLocation(_currentPosition.latitude, _currentPosition.longitude);
       });
     }).catchError((e) => print(e));
   }

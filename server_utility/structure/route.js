@@ -5,31 +5,33 @@ const fs = require('fs')
 var gpx_parse = require("gpx-parse");
 let route = express();
 
-var route_data;
 const csv_file = "./parse_cai_data/data.csv";
 
-route
-    .route("/:id")
+var json_object = {} // empty Object
+var json_route = 'route';
+var gpx = 'gpx';
+json_object[json_route] = []; // empty Array, which you can push() values into
+json_object[gpx] = [];
+
+
+route.route("/:id")
     .get((req, res) => {
-        //res.send("GET ID: "+req.params.id);
-        built_path = "./route_gpx/"+req.params.id+".gpx";
-        var jsonResponse;
-        parseCSV(req.params.id,jsonResponse)
-        //res.send(parseGPX(built_path));
+        file_path = "parse_cai_data/route_gpx/"+req.params.id+".gpx";
+
+        parseCSV(req.params.id);
+        parseGPX(file_path,res);
     });
 
-
-
-
-function parseGPX(id_path){
-    console.log("ID PATH: "+id_path);
-    return gpx_parse.parseGpxFromFile(id_path,
+function parseGPX(file_path,res){
+    console.log("File PATH: "+file_path);
+    return gpx_parse.parseGpxFromFile(file_path,
         function(error, result) {
-            if(error != null)
-                console.log("ERROR! File not found");
-            else{
-                console.log(result.tracks[0].name);
-                console.log(result.tracks.length);
+            if(error != null){
+                console.error("GPX file error!");
+                res.send(error);
+            }else{
+                json_object[gpx]=result;
+                res.send(JSON.stringify(json_object));
             }
         });
 }
@@ -37,31 +39,15 @@ function parseGPX(id_path){
 
 
 
-function parseCSV(id,jsonResponse){
+function parseCSV(id){
     csv_to_json()
         .fromFile(csv_file)
         .then((json_obj)=>{
-            this.route_data=json_obj
-            var found_item = this.route_data.filter(function(item) {
-                return item.id == id;
-            });
-            console.log(found_item);
-            jsonResponse = found_item;
+            json_object[json_route] = json_obj.filter(
+                function(item) {
+                    return item.id == id;
+            })[0];
         })
-    /*var data = fs.readFileSync(csv_file)
-    .toString() // convert Buffer to string
-    .split('\n') // split string to lines
-    .map(e => e.trim()) // remove white spaces for each line
-    .map(e => e.split(',').map(e => e.trim())); // split each line to array
-
-    console.log(data);
-    console.log(JSON.stringify(data, '', 2));*/
-    /*fs.createReadStream(csv_file)
-        .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', () => {
-            console.log(results.filter(block => block.id==id));
-        });*/
 }
 
 module.exports = route;
