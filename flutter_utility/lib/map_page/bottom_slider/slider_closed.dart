@@ -2,20 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:utility/map_page/gmaps_map.dart';
+import 'package:utility/util/htpp_request.dart';
+import 'package:utility/util/response_structure.dart';
 
 /**
  * Build the map and top right bottom
  */
-class BuildClosedSliderPage extends StatelessWidget {
+class BuildClosedSliderPage extends StatefulWidget {
   static const mapsBlue = Color(0xFF4185F3);
+  Future<Response> response;
+
+  BuildClosedSliderPage({Key key, this.response}) : super(key: key);
+
+  @override
+  _BuildClosedSliderPageState createState() => _BuildClosedSliderPageState();
+}
+
+class _BuildClosedSliderPageState extends State<BuildClosedSliderPage> {
+  Future<Response> futureResponse;
+
+  @override
+  void initState() {
+    super.initState();
+    futureResponse = widget.response;
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Execute the request given an id
     return Stack(
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(bottom: 70),
-          child: MapPage(id: "200"),
+          child: MapPage(
+            response: futureResponse,
+          ),
         ),
         Align(
           alignment: Alignment.topRight,
@@ -31,7 +52,7 @@ class BuildClosedSliderPage extends StatelessWidget {
               },
               child: const Icon(
                 Icons.layers,
-                color: mapsBlue,
+                color: BuildClosedSliderPage.mapsBlue,
               ),
             ),
           ),

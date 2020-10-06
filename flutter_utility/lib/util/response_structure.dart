@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Response {
@@ -11,6 +10,7 @@ class Response {
   final String ascent;
   final String downloadLink;
   final Polyline polylineResult;
+  final List<double> elevationList;
 
   Response({
     this.id,
@@ -21,18 +21,22 @@ class Response {
     this.ascent,
     this.downloadLink,
     this.polylineResult,
+    this.elevationList,
   });
 
   factory Response.fromJson(Map<String, dynamic> json) {
     // Take the route object from the json
     Map<String, dynamic> route = json['route'];
-    debugPrint(route.toString());
     List<dynamic> gpx = json['gpx']['tracks'][0]['segments'][0];
 
-    // Begin polyline part
+    // Parse json
     List<LatLng> routeCoords = [];
+    List<double> elevationList = [];
 
     gpx.forEach((element) {
+      if (element['elevation'] > -1.0) {
+        elevationList.add(element['elevation'].toDouble());
+      }
       routeCoords.add(
         LatLng(
           element['lat'],
@@ -54,10 +58,11 @@ class Response {
       caiSection: route['cai_section'],
       difficulty: route['difficulty'],
       time: route['time'],
-      km: route['km'],
+      km: route['km'].toString().replaceAll('^', '.'),
       ascent: route['ascent'],
       downloadLink: route['download_link'],
       polylineResult: routePolyline,
+      elevationList: elevationList,
     );
   }
 }

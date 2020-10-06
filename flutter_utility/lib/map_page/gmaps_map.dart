@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:utility/util/htpp_request.dart';
 import 'package:utility/util/response_structure.dart';
 
 import 'gmaps_marker.dart';
 
 class MapPage extends StatefulWidget {
-  final String id;
+  final Future<Response> response;
 
-  MapPage({Key key, this.id}) : super(key: key);
+  MapPage({Key key, this.response}) : super(key: key);
 
   @override
   MapPageState createState() => MapPageState();
@@ -23,12 +22,12 @@ class MapPageState extends State<MapPage> {
   Position _currentPosition;
   GoogleMapController _controller;
   bool isMapCreated = false;
-  String routeId = "";
+  Future<Response> futureResponse;
 
   @override
   void initState() {
     super.initState();
-    routeId = widget.id;
+    futureResponse = widget.response;
   }
 
   @override
@@ -128,14 +127,10 @@ class MapPageState extends State<MapPage> {
   }
 
   _onMapCreated(GoogleMapController controller) {
+    double startLatitude, startLongitude;
     _controller = controller;
     //isMapCreated = true;
     changeMapMode();
-    debugPrint("ID: " + routeId);
-    // Execute the request given an id
-    Future<Response> futureResponse = fetchData(routeId);
-    double startLatitude, startLongitude;
-
     futureResponse.then((value) => {
           // Draw the route
           _routePolyline.clear(),
@@ -157,9 +152,7 @@ class MapPageState extends State<MapPage> {
               value.polylineResult.points.last.longitude,
             ),
           ),
-
           _goToLocation(startLatitude, startLongitude),
         });
-    futureResponse.whenComplete(() => setState(() {}));
   }
 }

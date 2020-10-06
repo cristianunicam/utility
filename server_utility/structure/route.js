@@ -1,18 +1,14 @@
 const express = require("express");
-const csv=require('csv-parser')
-const csv_to_json=require('csvtojson')
-const fs = require('fs')
-var gpx_parse = require("gpx-parse");
+const csv_to_json = require('csvtojson')
+const gpx_parse = require("gpx-parse");
 let route = express();
 
 const csv_file = "./parse_cai_data/data.csv";
-
 var json_object = {} // empty Object
 var json_route = 'route';
 var gpx = 'gpx';
 json_object[json_route] = []; // empty Array, which you can push() values into
 json_object[gpx] = [];
-
 
 route.route("/:id")
     .get((req, res) => {
@@ -35,9 +31,6 @@ function parseGPX(file_path,res){
             }
         });
 }
-
-
-
 
 function parseCSV(id){
     csv_to_json()

@@ -30,6 +30,7 @@ dependencies:
   geolocator: ^6.0.0
   gpx: ^1.1.1
   http: ^0.12.2
+  fl_chart: ^0.11.1
 
   flutter:
     sdk: flutter
