@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 import 'package:utility/util/htpp_request.dart';
@@ -26,20 +25,27 @@ class AppStructureState extends State<AppStructure> {
   Future<Response> futureResponse;
   SheetController controller;
   bool tapped = false;
+  bool requestObtained = false;
 
   @override
   void initState() {
     super.initState();
     controller = SheetController();
     futureResponse = fetchData(id);
+    //TODO PROVARE AD INSERIRE IL THEN QUì DENTRO
   }
 
   @override
   Widget build(BuildContext context) {
-    futureResponse.then(
-      (value) => completedResponse = value,
-    );
-    futureResponse.whenComplete(() => setState(() => {}));
+    if (!requestObtained) {
+      futureResponse.then((value) => {
+            setState(() => {
+                  completedResponse = value,
+                  requestObtained = !requestObtained,
+                })
+          });
+    }
+    //futureResponse.whenComplete(() => setState(() => {}));
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -87,14 +93,10 @@ class AppStructureState extends State<AppStructure> {
                   print('Snapped to $snap');
                 },
               ),
-              parallaxSpec: const ParallaxSpec(
-                enabled: true,
-                amount: 0.35,
-                endExtent: 0.6,
-              ),
               liftOnScrollHeaderElevation: 12.0,
               liftOnScrollFooterElevation: 12.0,
               // Build the map and the top right button
+              //TODO PROVARE A SPOSTARE IL BODY ALL'ESTERNO DELLO SLIDINGSHEET
               body: BuildClosedSliderPage(response: futureResponse),
               // Build the slider header
               headerBuilder: (context, state) {

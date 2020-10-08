@@ -20,8 +20,6 @@ class OpenedSliderState extends State<OpenedSlider> {
   Future<Response> futureResponse;
   Response completedResponse;
   bool show = false;
-  /*TimeOfDay _lenght;
-  double _doubleTimeLenght = 0;*/
   int contOfSixty = 0;
 
   static const textStyle = TextStyle(
@@ -34,6 +32,9 @@ class OpenedSliderState extends State<OpenedSlider> {
   void initState() {
     super.initState();
     futureResponse = widget.response;
+    futureResponse.then((value) {
+      completedResponse = value;
+    });
   }
 
   /**
@@ -41,23 +42,6 @@ class OpenedSliderState extends State<OpenedSlider> {
    */
   @override
   Widget build(BuildContext context) {
-    futureResponse.then((value) {
-      debugPrint("FUNZIAAAA");
-      completedResponse = value;
-    });
-
-    /*TODO Trying to add bottom data
-      _lenght = TimeOfDay(
-        hour: int.parse(value.time.split(":")[0]),
-        minute: int.parse(value.time.split(":")[1]),
-      );*/
-    /* Convert TimeOfDay in double, subtract 30 till is less or equals to 0,
-            count the number of times you subtracted 30 and insert a counter starting
-            from 00:00 adding 30 minutes every time till the number counted earlier*/
-    /*_doubleTimeLenght =
-          (_lenght.hour.toDouble() * 60) + _lenght.minute.toDouble();*/
-    //contOfSixty = _lenght.hour; //(_doubleTimeLenght / 30).round();
-
     final divider = Container(
       height: 1,
       color: Colors.grey.shade300,
@@ -131,86 +115,12 @@ class OpenedSliderState extends State<OpenedSlider> {
             ],
           ),
         ),
-        /*TODO OLD
-        divider,
-        const SizedBox(height: 32),
-        InkWell(
-          onTap: () => (() => show = !show),
-          child: Padding(
-            padding: padding,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Traffic',
-                  style: titleStyle,
-                ),
-                const SizedBox(height: 16),
-                buildChart(context),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 32),
-        divider,
-        const SizedBox(height: 32),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: padding,
-              child: Text(
-                'Steps',
-                style: titleStyle,
-              ),
-            ),
-            const SizedBox(height: 8),
-            buildSteps(context),
-          ],
-        ),
-        const SizedBox(height: 32),
-        divider,
-        const SizedBox(height: 32),
-        Icon(
-          MdiIcons.github,
-          color: Colors.grey.shade900,
-          size: 48,
-        ),
-        const SizedBox(height: 16),
-        Align(
-          alignment: Alignment.center,
-          child: Text(
-            'Pull request are welcome!',
-            style: textStyle.copyWith(
-              color: Colors.grey.shade700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.center,
-          child: Text(
-            '(Stars too)',
-            style: textStyle.copyWith(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-        ),
-        const SizedBox(height: 32),*/
       ],
     );
   }
 
   LineChart mainData() {
     double cont = 0;
-    /* TODO Trying to add values to the bottom bar
-    List<int> titlesVal = [];
-    int hour = 0, minutes = 0;
-    int contPrint = 0;*/
 
     List<Color> gradientColors = [
       const Color(0xff23b6e6),
@@ -223,24 +133,6 @@ class OpenedSliderState extends State<OpenedSlider> {
       }
       cont += 1;
     });
-    /* TODO Trying to add values to the bottom bar
-    for (int x = 0; x <= 1000; x += 50) titlesVal.add(x);
-
-    int jumpNumber = (1000 / contOfSixty).round();
-    int temp = jumpNumber;
-    int minimum = 2000;
-    List<int> jumpList = [];
-
-    for (int x = 0; x < contOfSixty + 1; x++) {
-      for (int val in titlesVal) {
-        if ((val - temp).abs() < minimum) {
-          minimum = val;
-        }
-      }
-      jumpList.add(minimum);
-      minimum = 2000;
-      temp = jumpNumber * x;
-    }*/
 
     return LineChart(
       LineChartData(
@@ -261,92 +153,6 @@ class OpenedSliderState extends State<OpenedSlider> {
           },
         ),
         titlesData: FlTitlesData(bottomTitles: SideTitles(showTitles: false)),
-        /* TODO Trying to add values to the bottom bar
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 22,
-            textStyle: const TextStyle(
-                color: Color(0xff68737d),
-                fontWeight: FontWeight.bold,
-                fontSize: 16),
-            getTitles: (value) {
-              if (jumpList.contains(value.toInt())) {
-                String toPrint = hour.toString() + ":" + minutes.toString();
-                if (minutes == 0) {
-                  minutes = 30;
-                } else {
-                  minutes = 0;
-                  hour += 1;
-                }
-                return toPrint;
-              }
-              return '';
-              
-              int jumpNumber = (cont / contOfSixty).round();
-              debugPrint("JUMPPPPPP: " +
-                  jumpNumber.toString() +
-                  " CONTPRINT: " +
-                  contPrint.toString() +
-                  " VALUEEE: " +
-                  value.toString());
-
-              if (value.toInt() == (jumpNumber * contPrint)) {
-                String toPrint = hour.toString() + ":" + minutes.toString();
-                if (minutes == 0) {
-                  minutes = 30;
-                } else {
-                  minutes = 0;
-                  hour += 1;
-                }
-                contPrint = contPrint + 1;
-                return toPrint;
-              }
-              return '';
-
-              /*
-              switch (value.toInt()) {
-                case 0:
-                  return 'MAR';
-                case 500:
-                  return 'JUN';
-                case 900:
-                  return 'SEP';
-              }
-              */
-            },
-            margin: 8,
-          ),*/ /*
-          leftTitles: SideTitles(
-            showTitles: true,
-            textStyle: const TextStyle(
-              color: Color(0xff67727d),
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
-            getTitles: (value) {
-              switch (value.toInt()) {
-                case 1:
-                  return '10k';
-                case 3:
-                  return '30k';
-                case 5:
-                  return '50k';
-              }
-              return '';
-            },
-            reservedSize: 28,
-            margin: 12,
-          ),
-        ),*/
-        /*borderData: FlBorderData(
-            show: true,
-            border: Border.all(color: const Color(0xff37434d), width: 1)),
-        minX: 0,
-        maxX: 11,
-        minY: 0,
-        maxY: 6,*/
         lineBarsData: [
           LineChartBarData(
             spots: completedResponse == null ? [FlSpot(0, 0)] : spotList,

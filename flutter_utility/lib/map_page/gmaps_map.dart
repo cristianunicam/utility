@@ -45,10 +45,7 @@ class MapPageState extends State<MapPage> {
   }
 
   Widget _buildGoogleMap(BuildContext context) {
-    /*
-    if (isMapCreated) {
-      changeMapMode();
-    }*/
+    debugPrint("MAP");
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -119,10 +116,10 @@ class MapPageState extends State<MapPage> {
 
   _goToCurrentLocation() async {
     await getCurrentPosition().then((Position position) {
-      setState(() {
-        _currentPosition = position;
-        _goToLocation(_currentPosition.latitude, _currentPosition.longitude);
-      });
+      //setState(() {
+      _currentPosition = position;
+      _goToLocation(_currentPosition.latitude, _currentPosition.longitude);
+      // });
     }).catchError((e) => print(e));
   }
 
@@ -152,6 +149,7 @@ class MapPageState extends State<MapPage> {
               value.polylineResult.points.last.longitude,
             ),
           ),
+
           _goToLocation(startLatitude, startLongitude),
         });
   }
