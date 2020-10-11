@@ -4,7 +4,10 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:utility/map_page/bottom_slider/point_of_interes.dart';
 import 'package:utility/util/response_structure.dart';
+import 'package:google_maps_webservice/places.dart';
 
 class OpenedSlider extends StatefulWidget {
   Future<Response> response;
@@ -19,6 +22,7 @@ class OpenedSliderState extends State<OpenedSlider> {
   List<FlSpot> spotList = [];
   Future<Response> futureResponse;
   Response completedResponse;
+  ScrollController scrollController;
   bool show = false;
   int contOfSixty = 0;
 
@@ -34,6 +38,7 @@ class OpenedSliderState extends State<OpenedSlider> {
     futureResponse = widget.response;
     futureResponse.then((value) {
       completedResponse = value;
+      scrollController = new ScrollController();
     });
   }
 
@@ -95,23 +100,40 @@ class OpenedSliderState extends State<OpenedSlider> {
               Text("Dislivello: " +
                   (completedResponse == null ? "" : completedResponse.ascent) +
                   " metri"),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                "Descrizione: " +
+                    (completedResponse == null
+                        ? "Descrizione"
+                        : completedResponse.description),
+              ),
               const SizedBox(height: 15),
               Text(
                 "Grafico dislivello",
                 style: titleStyle,
               ),
               const SizedBox(height: 15),
+              //TODO TRY WITH EXPAND
               Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Padding(
                     padding: padding,
-                    child: completedResponse == null ? null : mainData(),
+                    child: completedResponse == null ? null : _loadChart(),
                   ),
                 ],
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 30),
+              Text(
+                "Punti di interesse",
+                style: titleStyle,
+              ),
+              const SizedBox(height: 15),
+              completedResponse == null ? Text("Loading") : _loadCards(context),
+              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -119,7 +141,104 @@ class OpenedSliderState extends State<OpenedSlider> {
     );
   }
 
-  LineChart mainData() {
+  Container _loadCards(BuildContext context) {
+    int cardIndex = 0;
+
+    return Container(
+        height: 200,
+        width: MediaQuery.of(context).size.width,
+        child: ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: 10,
+          shrinkWrap: true,
+          controller: scrollController,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, position) {
+            return GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  child: Container(
+                    width: 220.0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              /*Icon(
+                            cardsList[position].icon,
+                            color: appColors[position],
+                          ),*/
+                              Icon(
+                                Icons.more_vert,
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: Text(
+                                  "Colonna num ${position + 1}",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: Text(
+                                  "null",
+                                  //"${cardsList[position].cardTitle}",
+                                  style: TextStyle(fontSize: 28.0),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: LinearProgressIndicator(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+              ),
+              onHorizontalDragEnd: (details) {
+                if (details.velocity.pixelsPerSecond.dx > 0) {
+                  //if (cardIndex > 0) cardIndex--;
+                  cardIndex--;
+                } else {
+                  //if (cardIndex < 2) cardIndex++;
+                  cardIndex++;
+                }
+                setState(() {
+                  scrollController.animateTo(
+                    (cardIndex) * 256.0,
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.fastOutSlowIn,
+                  );
+                });
+              },
+            );
+          },
+        ));
+  }
+
+  LineChart _loadChart() {
     double cont = 0;
 
     List<Color> gradientColors = [

@@ -9,8 +9,10 @@ class Response {
   final String km;
   final String ascent;
   final String downloadLink;
+  final String description;
   final Polyline polylineResult;
   final List<double> elevationList;
+  final List<LatLng> routePoints;
 
   Response({
     this.id,
@@ -20,8 +22,10 @@ class Response {
     this.km,
     this.ascent,
     this.downloadLink,
+    this.description,
     this.polylineResult,
     this.elevationList,
+    this.routePoints,
   });
 
   factory Response.fromJson(Map<String, dynamic> json) {
@@ -61,8 +65,10 @@ class Response {
       km: route['km'].toString().replaceAll('^', '.'),
       ascent: route['ascent'],
       downloadLink: route['download_link'],
+      description: route['description'],
       polylineResult: routePolyline,
       elevationList: elevationList,
+      routePoints: routeCoords,
     );
   }
 }

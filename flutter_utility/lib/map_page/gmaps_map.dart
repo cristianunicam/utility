@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:utility/util/response_structure.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'credential.dart';
 
 import 'gmaps_marker.dart';
 
@@ -23,6 +25,7 @@ class MapPageState extends State<MapPage> {
   GoogleMapController _controller;
   bool isMapCreated = false;
   Future<Response> futureResponse;
+  PlacesSearchResponse placesResponse;
 
   @override
   void initState() {
@@ -129,28 +132,75 @@ class MapPageState extends State<MapPage> {
     //isMapCreated = true;
     changeMapMode();
     futureResponse.then((value) => {
-          // Draw the route
-          _routePolyline.clear(),
-          _routePolyline.add(value.polylineResult),
-          startLatitude = value.polylineResult.points.first.latitude,
-          startLongitude = value.polylineResult.points.first.longitude,
+          setState(() {
+            // Draw the route
+            _routePolyline.clear();
+            _routePolyline.add(value.polylineResult);
+            startLatitude = value.polylineResult.points.first.latitude;
+            startLongitude = value.polylineResult.points.first.longitude;
 
-          // Start waypoint
-          _markerSet.add(
-            new GMapsMarker().buildMarker(
-                "start", "Inizio percorso", startLatitude, startLongitude),
-          ),
-          // End waypoint
-          _markerSet.add(
-            GMapsMarker().buildMarker(
-              "end",
-              "Fine percorso",
-              value.polylineResult.points.last.latitude,
-              value.polylineResult.points.last.longitude,
-            ),
-          ),
+            // Start waypoint
+            _markerSet.add(
+              new GMapsMarker().buildMarker(
+                  "start", "Inizio percorso", startLatitude, startLongitude),
+            );
+            // End waypoint
+            _markerSet.add(
+              GMapsMarker().buildMarker(
+                "end",
+                "Fine percorso",
+                value.polylineResult.points.last.latitude,
+                value.polylineResult.points.last.longitude,
+              ),
+            );
+            getList(startLatitude, startLongitude).then((markerList) => {
+                  if (markerList != null)
+                    {
+                      markerList.forEach((element) {
+                        _markerSet.add(element);
+                      }),
+                      setState(() {}),
+                    }
+                });
 
-          _goToLocation(startLatitude, startLongitude),
+            _goToLocation(startLatitude, startLongitude);
+          }),
         });
+  }
+
+//TODO TO FINISH
+  Future<List<Marker>> getList(
+      double startLatitude, double startLongitude) async {
+    int markerCont = 0;
+    // API_KEY has to be placed in a file named credential.dart
+    GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: API_KEY);
+    List<Marker> markerList = [];
+
+    final location = Location(startLatitude, startLongitude);
+    final placesSearchResponse = await _places
+        .searchNearbyWithRankBy(location, "distance", type: "church");
+
+    //this.isLoading = false;
+    if (placesSearchResponse.status == "OK") {
+      this.placesResponse = placesSearchResponse;
+      placesSearchResponse.results.forEach((place) {
+        markerList.add(
+          Marker(
+            markerId: MarkerId("$markerCont"),
+            position: LatLng(
+                place.geometry.location.lat, place.geometry.location.lng),
+            //TODO REMOVE infoWindow: InfoWindow(title: "${f.name}" + "${f.types?.first}"),
+            infoWindow: InfoWindow(title: "${place.name}"),
+          ),
+        );
+        markerCont += 1;
+        // mapController.(markerOptions);
+      });
+      return markerList;
+    } else {
+      debugPrint("ERRORE");
+      return null;
+      //this.errorMessage = placesSearchResponse.errorMessage;
+    }
   }
 }

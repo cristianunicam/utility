@@ -95,9 +95,12 @@ class AppStructureState extends State<AppStructure> {
               ),
               liftOnScrollHeaderElevation: 12.0,
               liftOnScrollFooterElevation: 12.0,
+
               // Build the map and the top right button
               //TODO PROVARE A SPOSTARE IL BODY ALL'ESTERNO DELLO SLIDINGSHEET
-              body: BuildClosedSliderPage(response: futureResponse),
+              body: completedResponse == null
+                  ? null
+                  : BuildClosedSliderPage(response: futureResponse),
               // Build the slider header
               headerBuilder: (context, state) {
                 return SliderHeader(state);
