@@ -52,29 +52,10 @@ class _MainListState extends State<MainList> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    //final double categoryHeight = size.height * 0.30;
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        /*appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          leading: Icon(
-            Icons.menu,
-            color: Colors.black,
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.person, color: Colors.black),
-              onPressed: () {},
-            )
-          ],
-        ),*/
         body: Container(
           height: size.height,
           child: Column(
@@ -101,12 +82,13 @@ class _MainListState extends State<MainList> {
   }
 
   _searchBar() {
+    final border = OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white, width: 1.0),
+        borderRadius: BorderRadius.all(Radius.circular(32.0)));
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Inserisci il nome da cercare...',
-        ),
         onChanged: (text) {
           text = text.toLowerCase();
           setState(() {
@@ -116,6 +98,20 @@ class _MainListState extends State<MainList> {
             }).toList();
           });
         },
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.search, color: Colors.white),
+          filled: true,
+          fillColor: Colors.grey.shade700,
+          hintText: 'Ricerca...',
+          hintStyle: TextStyle(color: Colors.white),
+          contentPadding:
+              EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(32.0)),
+          ),
+          enabledBorder: border,
+          focusedBorder: border,
+        ),
       ),
     );
   }
@@ -138,13 +134,27 @@ class _MainListState extends State<MainList> {
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
             color: Colors.white,
             boxShadow: [
-              BoxShadow(color: Colors.black.withAlpha(100), blurRadius: 10.0),
+              BoxShadow(
+                color: Colors.black.withAlpha(100),
+                blurRadius: 10.0,
+              ),
             ]),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
+              Image(image: AssetImage('assets/images/marche.jpg')),
+              //Divider
+              ClipRRect(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(15),
+                ),
+                child: VerticalDivider(
+                  color: Colors.grey.shade400,
+                  thickness: 8,
+                ),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'main_list.dart';
-import 'map_page/structure.dart';
 
 void main() => runApp(MyApp());
 
