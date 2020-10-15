@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class Response {
+class ResponseWithGPX {
   final String id;
   final String caiSection;
   final String difficulty;
@@ -14,7 +14,7 @@ class Response {
   final List<double> elevationList;
   final List<LatLng> routePoints;
 
-  Response({
+  ResponseWithGPX({
     this.id,
     this.caiSection,
     this.difficulty,
@@ -28,7 +28,7 @@ class Response {
     this.routePoints,
   });
 
-  factory Response.fromJson(Map<String, dynamic> json) {
+  factory ResponseWithGPX.fromJson(Map<String, dynamic> json) {
     // Take the route object from the json
     Map<String, dynamic> route = json['route'];
     List<dynamic> gpx = json['gpx']['tracks'][0]['segments'][0];
@@ -57,7 +57,7 @@ class Response {
       color: Colors.black38,
     );
 
-    return Response(
+    return ResponseWithGPX(
       id: route['id'],
       caiSection: route['cai_section'],
       difficulty: route['difficulty'],

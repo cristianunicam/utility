@@ -1,18 +1,25 @@
 import 'dart:async';
 
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:utility/map_page/bottom_slider/point_of_interes.dart';
-import 'package:utility/util/response_structure.dart';
-import 'package:google_maps_webservice/places.dart';
+import 'package:sliding_sheet/sliding_sheet.dart';
+import 'package:utility/models/response_structure.dart';
 
 class OpenedSlider extends StatefulWidget {
-  Future<Response> response;
+  final Future<ResponseWithGPX> response;
+  final List<Marker> markers;
+  final GoogleMapController mapController;
+  final SheetController sliderController;
 
-  OpenedSlider({Key key, this.response}) : super(key: key);
+  OpenedSlider(
+      {Key key,
+      this.response,
+      this.markers,
+      this.mapController,
+      this.sliderController})
+      : super(key: key);
 
   @override
   OpenedSliderState createState() => OpenedSliderState();
@@ -20,8 +27,9 @@ class OpenedSlider extends StatefulWidget {
 
 class OpenedSliderState extends State<OpenedSlider> {
   List<FlSpot> spotList = [];
-  Future<Response> futureResponse;
-  Response completedResponse;
+  List<Marker> markers;
+  Future<ResponseWithGPX> futureResponse;
+  ResponseWithGPX completedResponse;
   ScrollController scrollController;
   bool show = false;
   int contOfSixty = 0;
@@ -31,27 +39,28 @@ class OpenedSliderState extends State<OpenedSlider> {
     fontFamily: 'sans-serif-medium',
     fontSize: 15,
   );
+  final divider = Container(
+    height: 1,
+    color: Colors.grey.shade300,
+  );
 
   @override
   void initState() {
     super.initState();
     futureResponse = widget.response;
+    markers = widget.markers;
+
     futureResponse.then((value) {
-      completedResponse = value;
-      scrollController = new ScrollController();
+      setState(() {
+        completedResponse = value;
+        scrollController = new ScrollController();
+      });
     });
   }
 
-  /**
-   * Takes care of building the content of the slider
-   */
+  /// Takes care of building the content of the slider
   @override
   Widget build(BuildContext context) {
-    final divider = Container(
-      height: 1,
-      color: Colors.grey.shade300,
-    );
-
     final titleStyle = textStyle.copyWith(
       fontSize: 16,
       fontWeight: FontWeight.w600,
@@ -73,42 +82,8 @@ class OpenedSliderState extends State<OpenedSlider> {
                 'Informazioni percorso',
                 style: titleStyle,
               ),
-              const SizedBox(height: 16),
-              Text(
-                "Nome percorso: " +
-                    (completedResponse == null ? "nome" : completedResponse.id),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                "Difficoltà: " +
-                    (completedResponse == null
-                        ? "Difficoltà"
-                        : completedResponse.difficulty),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                "Durata: " +
-                    (completedResponse == null
-                        ? "Durata"
-                        : completedResponse.time + " ore"),
-              ),
-              const SizedBox(height: 5),
-              Text("Lunghezza: " +
-                  (completedResponse == null ? "" : completedResponse.km) +
-                  " km"),
-              const SizedBox(height: 5),
-              Text("Dislivello: " +
-                  (completedResponse == null ? "" : completedResponse.ascent) +
-                  " metri"),
-              const SizedBox(
-                height: 5,
-              ),
-              Text(
-                "Descrizione: " +
-                    (completedResponse == null
-                        ? "Descrizione"
-                        : completedResponse.description),
-              ),
+              _buildRouteDescription(context),
+
               const SizedBox(height: 15),
               Text(
                 "Grafico dislivello",
@@ -122,7 +97,9 @@ class OpenedSliderState extends State<OpenedSlider> {
                 children: <Widget>[
                   Padding(
                     padding: padding,
-                    child: completedResponse == null ? null : _loadChart(),
+                    child: widget.mapController == null
+                        ? Text("Loading...")
+                        : _loadChart(),
                   ),
                 ],
               ),
@@ -132,7 +109,9 @@ class OpenedSliderState extends State<OpenedSlider> {
                 style: titleStyle,
               ),
               const SizedBox(height: 15),
-              completedResponse == null ? Text("Loading") : _loadCards(context),
+              completedResponse == null
+                  ? Text("Loading")
+                  : _buildCards(context),
               const SizedBox(height: 30),
             ],
           ),
@@ -141,7 +120,7 @@ class OpenedSliderState extends State<OpenedSlider> {
     );
   }
 
-  Container _loadCards(BuildContext context) {
+  Container _buildCards(BuildContext context) {
     int cardIndex = 0;
 
     return Container(
@@ -149,7 +128,7 @@ class OpenedSliderState extends State<OpenedSlider> {
         width: MediaQuery.of(context).size.width,
         child: ListView.builder(
           physics: NeverScrollableScrollPhysics(),
-          itemCount: 10,
+          itemCount: markers != null ? markers.length : 0,
           shrinkWrap: true,
           controller: scrollController,
           scrollDirection: Axis.horizontal,
@@ -158,28 +137,13 @@ class OpenedSliderState extends State<OpenedSlider> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
+                  shadowColor: Colors.black,
                   child: Container(
                     width: 220.0,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              /*Icon(
-                            cardsList[position].icon,
-                            color: appColors[position],
-                          ),*/
-                              Icon(
-                                Icons.more_vert,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                        ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
@@ -189,22 +153,42 @@ class OpenedSliderState extends State<OpenedSlider> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8.0, vertical: 4.0),
                                 child: Text(
-                                  "Colonna num ${position + 1}",
-                                  style: TextStyle(color: Colors.grey),
+                                  markers[position].infoWindow.title,
+                                  style: TextStyle(fontSize: 18.0),
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 4.0),
-                                child: Text(
-                                  "null",
-                                  //"${cardsList[position].cardTitle}",
-                                  style: TextStyle(fontSize: 28.0),
-                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text("Via: "),
                               ),
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: LinearProgressIndicator(),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text("Distanza:"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text("Cerca"),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.location_on,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  _moveCamera(position);
+                                  widget.mapController.showMarkerInfoWindow(
+                                    markers[position].markerId,
+                                  );
+                                  widget.sliderController.collapse();
+                                },
                               ),
                             ],
                           ),
@@ -236,6 +220,22 @@ class OpenedSliderState extends State<OpenedSlider> {
             );
           },
         ));
+  }
+
+  _moveCamera(int position) {
+    widget.mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(
+            markers[position].position.latitude,
+            markers[position].position.longitude,
+          ),
+          zoom: 15,
+          tilt: 0,
+          bearing: 0,
+        ),
+      ),
+    );
   }
 
   LineChart _loadChart() {
@@ -294,15 +294,17 @@ class OpenedSliderState extends State<OpenedSlider> {
     );
   }
 
-  Widget buildSteps(BuildContext context) {
-    final steps = [
-      Step('Go to your pubspec.yaml file.', '2 seconds'),
-      Step("Add the newest version of 'sliding_sheet' to your dependencies.",
-          '5 seconds'),
-      Step("Run 'flutter packages get' in the terminal.", '4 seconds'),
-      Step("Happy coding!", 'Forever'),
-    ];
-
+  Widget _buildRouteDescription(BuildContext context) {
+    final steps = completedResponse == null
+        ? []
+        : [
+            Step("Nome percorso: ", completedResponse.id),
+            Step("Difficoltà: ", completedResponse.difficulty),
+            Step("Durata: ", completedResponse.time),
+            Step("Lunghezza: ", completedResponse.km),
+            Step("Dislivello: ", completedResponse.ascent),
+            Step("Descrizione: ", completedResponse.description),
+          ];
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -311,95 +313,35 @@ class OpenedSliderState extends State<OpenedSlider> {
         final step = steps[i];
 
         return Padding(
-          padding: const EdgeInsets.fromLTRB(56, 16, 0, 0),
+          padding: const EdgeInsets.only(left: 15),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                step.instruction,
-                style: textStyle.copyWith(
-                  fontSize: 16,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  step.field + step.val,
+                  style: textStyle.copyWith(
+                    fontSize: 16,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: <Widget>[
-                  Text(
-                    '${step.time}',
-                    style: textStyle.copyWith(
-                      color: Colors.grey,
-                      fontSize: 15,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Container(
-                      height: 1,
-                      color: Colors.grey.shade300,
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(height: 8),
+              divider,
             ],
           ),
         );
       },
     );
   }
-
-  Widget buildChart(BuildContext context) {
-    final series = [
-      charts.Series<Traffic, String>(
-        id: 'traffic',
-        data: [
-          Traffic(0.5, '14:00'),
-          Traffic(0.6, '14:30'),
-          Traffic(0.5, '15:00'),
-          Traffic(0.7, '15:30'),
-          Traffic(0.8, '16:00'),
-          Traffic(0.6, '16:30'),
-        ],
-        colorFn: (traffic, __) {
-          if (traffic.time == '14:30')
-            return charts.Color.fromHex(code: '#F0BA64');
-          return charts.MaterialPalette.gray.shade300;
-        },
-        domainFn: (Traffic traffic, _) => traffic.time,
-        measureFn: (Traffic traffic, _) => traffic.intesity,
-      ),
-    ];
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      height: show ? 256 : 128,
-      color: Colors.transparent,
-      child: charts.BarChart(
-        series,
-        animate: true,
-        domainAxis: charts.OrdinalAxisSpec(
-          renderSpec: charts.SmallTickRendererSpec(
-            labelStyle: charts.TextStyleSpec(
-              fontSize: 12, // size in Pts.
-              color: charts.MaterialPalette.gray.shade500,
-            ),
-          ),
-        ),
-        defaultRenderer: charts.BarRendererConfig(
-          cornerStrategy: const charts.ConstCornerStrategy(5),
-        ),
-      ),
-    );
-  }
 }
 
 class Step {
-  final String instruction;
-  final String time;
+  final String field;
+  final String val;
   Step(
-    this.instruction,
-    this.time,
+    this.field,
+    this.val,
   );
 }
 

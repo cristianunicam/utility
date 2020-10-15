@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
+import 'package:utility/models/response_structure.dart';
 import 'package:utility/util/htpp_request.dart';
-import 'package:utility/util/response_structure.dart';
 
 import 'bottom_slider/slider_closed.dart';
 import 'bottom_slider/slider_footer.dart';
@@ -9,6 +10,10 @@ import 'bottom_slider/slider_header.dart';
 import 'bottom_slider/slider_opened.dart';
 
 class AppStructure extends StatefulWidget {
+  final String id;
+
+  const AppStructure({Key key, this.id}) : super(key: key);
+
   @override
   AppStructureState createState() => AppStructureState();
 }
@@ -20,19 +25,29 @@ class AppStructureState extends State<AppStructure> {
   //ValueNotifier<SheetState> sheetState = ValueNotifier(SheetState.inital());
   //SheetState get state => sheetState.value;
   //set state(SheetState value) => sheetState.value = value;
-  Response completedResponse;
-  final String id = "100";
-  Future<Response> futureResponse;
+  ResponseWithGPX completedResponse;
+  String id = "100";
+  Future<ResponseWithGPX> futureResponse;
   SheetController controller;
   bool tapped = false;
   bool requestObtained = false;
+  List<Marker> markers = [];
+  GoogleMapController gmapsController;
+
+  callbackController(newController) {
+    gmapsController = newController;
+  }
+
+  callbackMarkers(newMarkers) {
+    setState(() => markers.addAll(newMarkers));
+  }
 
   @override
   void initState() {
     super.initState();
+    if (widget.id != null) id = widget.id;
     controller = SheetController();
     futureResponse = fetchData(id);
-    //TODO PROVARE AD INSERIRE IL THEN QUì DENTRO
   }
 
   @override
@@ -45,24 +60,13 @@ class AppStructureState extends State<AppStructure> {
                 })
           });
     }
-    //futureResponse.whenComplete(() => setState(() => {}));
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       resizeToAvoidBottomPadding: true,
       body: Column(
         children: <Widget>[
-          /*
-          GestureDetector(
-            onTap: () => setState(() => tapped = !tapped),
-            child: AnimatedContainer(
-              duration: const Duration(seconds: 1),
-              height: tapped ? 200 : 0,
-              color: Colors.red,
-            ),
-          ),*/
           Expanded(
-            // child: BuildSlider(controller),
             // Set the slider layout
             child: SlidingSheet(
               duration: const Duration(milliseconds: 900),
@@ -95,12 +99,14 @@ class AppStructureState extends State<AppStructure> {
               ),
               liftOnScrollHeaderElevation: 12.0,
               liftOnScrollFooterElevation: 12.0,
-
               // Build the map and the top right button
-              //TODO PROVARE A SPOSTARE IL BODY ALL'ESTERNO DELLO SLIDINGSHEET
               body: completedResponse == null
-                  ? null
-                  : BuildClosedSliderPage(response: futureResponse),
+                  ? Text("LOADING...")
+                  : BuildClosedSliderPage(
+                      response: futureResponse,
+                      callbackMarkers: callbackMarkers,
+                      callbackController: callbackController,
+                    ),
               // Build the slider header
               headerBuilder: (context, state) {
                 return SliderHeader(state);
@@ -111,7 +117,12 @@ class AppStructureState extends State<AppStructure> {
               },
               // Build the opened slider
               builder: (context, state) {
-                return OpenedSlider(response: futureResponse);
+                return OpenedSlider(
+                  response: futureResponse,
+                  markers: markers,
+                  mapController: gmapsController,
+                  sliderController: controller,
+                );
               },
             ),
           ),

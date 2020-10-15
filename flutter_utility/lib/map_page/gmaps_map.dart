@@ -3,16 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:utility/util/response_structure.dart';
+import 'package:utility/models/response_structure.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'credential.dart';
 
 import 'gmaps_marker.dart';
 
 class MapPage extends StatefulWidget {
-  final Future<Response> response;
+  final Future<ResponseWithGPX> response;
+  final Function(List<Marker>) callbackMarkers;
+  final Function(GoogleMapController) callbackController;
 
-  MapPage({Key key, this.response}) : super(key: key);
+  MapPage(
+      {Key key, this.response, this.callbackMarkers, this.callbackController})
+      : super(key: key);
 
   @override
   MapPageState createState() => MapPageState();
@@ -22,9 +26,9 @@ class MapPageState extends State<MapPage> {
   Set<Marker> _markerSet = Set<Marker>();
   Set<Polyline> _routePolyline = Set<Polyline>();
   Position _currentPosition;
-  GoogleMapController _controller;
+  GoogleMapController mapController;
   bool isMapCreated = false;
-  Future<Response> futureResponse;
+  Future<ResponseWithGPX> futureResponse;
   PlacesSearchResponse placesResponse;
 
   @override
@@ -70,7 +74,7 @@ class MapPageState extends State<MapPage> {
 
   changeMapMode() {
     getJsonFile("assets/map_theme/grey_theme.json").then(
-      (mapStyle) => _controller.setMapStyle(mapStyle),
+      (mapStyle) => mapController.setMapStyle(mapStyle),
     );
   }
 
@@ -105,7 +109,7 @@ class MapPageState extends State<MapPage> {
   }
 
   Future<void> _goToLocation(double lat, double long) async {
-    _controller.animateCamera(
+    mapController.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(lat, long),
@@ -119,52 +123,52 @@ class MapPageState extends State<MapPage> {
 
   _goToCurrentLocation() async {
     await getCurrentPosition().then((Position position) {
-      //setState(() {
       _currentPosition = position;
       _goToLocation(_currentPosition.latitude, _currentPosition.longitude);
-      // });
+      widget.callbackController(mapController);
     }).catchError((e) => print(e));
   }
 
   _onMapCreated(GoogleMapController controller) {
     double startLatitude, startLongitude;
-    _controller = controller;
-    //isMapCreated = true;
+    mapController = controller;
+
     changeMapMode();
     futureResponse.then((value) => {
-          setState(() {
-            // Draw the route
-            _routePolyline.clear();
-            _routePolyline.add(value.polylineResult);
-            startLatitude = value.polylineResult.points.first.latitude;
-            startLongitude = value.polylineResult.points.first.longitude;
+          // Draw the route
+          _routePolyline.clear(),
+          _routePolyline.add(value.polylineResult),
+          startLatitude = value.polylineResult.points.first.latitude,
+          startLongitude = value.polylineResult.points.first.longitude,
 
-            // Start waypoint
-            _markerSet.add(
-              new GMapsMarker().buildMarker(
-                  "start", "Inizio percorso", startLatitude, startLongitude),
-            );
-            // End waypoint
-            _markerSet.add(
-              GMapsMarker().buildMarker(
-                "end",
-                "Fine percorso",
-                value.polylineResult.points.last.latitude,
-                value.polylineResult.points.last.longitude,
-              ),
-            );
-            getList(startLatitude, startLongitude).then((markerList) => {
-                  if (markerList != null)
-                    {
-                      markerList.forEach((element) {
-                        _markerSet.add(element);
-                      }),
-                      setState(() {}),
-                    }
-                });
+          // Start waypoint
+          _markerSet.add(
+            new GMapsMarker().buildMarker(
+                "start", "Inizio percorso", startLatitude, startLongitude),
+          ),
 
-            _goToLocation(startLatitude, startLongitude);
-          }),
+          // End waypoint
+          _markerSet.add(
+            GMapsMarker().buildMarker(
+              "end",
+              "Fine percorso",
+              value.polylineResult.points.last.latitude,
+              value.polylineResult.points.last.longitude,
+            ),
+          ),
+
+          // Add point of interest markers on the map
+          getList(startLatitude, startLongitude).then((markerList) => {
+                setState(() {
+                  if (markerList != null) {
+                    widget.callbackMarkers(markerList);
+                    _markerSet.addAll(markerList);
+                  }
+                }),
+              }),
+
+          _goToLocation(startLatitude, startLongitude),
+          widget.callbackController(mapController),
         });
   }
 
@@ -188,7 +192,9 @@ class MapPageState extends State<MapPage> {
           Marker(
             markerId: MarkerId("$markerCont"),
             position: LatLng(
-                place.geometry.location.lat, place.geometry.location.lng),
+              place.geometry.location.lat,
+              place.geometry.location.lng,
+            ),
             //TODO REMOVE infoWindow: InfoWindow(title: "${f.name}" + "${f.types?.first}"),
             infoWindow: InfoWindow(title: "${place.name}"),
           ),
@@ -198,7 +204,7 @@ class MapPageState extends State<MapPage> {
       });
       return markerList;
     } else {
-      debugPrint("ERRORE");
+      debugPrint("Error");
       return null;
       //this.errorMessage = placesSearchResponse.errorMessage;
     }

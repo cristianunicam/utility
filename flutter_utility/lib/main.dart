@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'main_list.dart';
 import 'map_page/structure.dart';
 
 void main() => runApp(MyApp());
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color(0xFF90CAF9),
       ),
-      home: AppStructure(),
+      home: MainList(),
     );
   }
 }
