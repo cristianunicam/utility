@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'main_list.dart';
 
@@ -9,6 +10,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+//    debugPaintSizeEnabled = true;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Utility',

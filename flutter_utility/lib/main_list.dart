@@ -22,7 +22,7 @@ class _MainListState extends State<MainList> {
     List<dynamic> responseList;
 
     fetchDataWithoutId().then((value) {
-      responseList = value.id;
+      responseList = value.routeList;
 
       responseList.forEach((post) {
         listRoute.add(
@@ -112,6 +112,7 @@ class _MainListState extends State<MainList> {
           enabledBorder: border,
           focusedBorder: border,
         ),
+        style: TextStyle(color: Colors.white),
       ),
     );
   }
@@ -122,54 +123,71 @@ class _MainListState extends State<MainList> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) {
-            return AppStructure(id: itemsDataToDisplay[index]);
+            return AppStructure(id: itemsDataToDisplay[index - 1]);
           }),
         );
-        debugPrint("TAPPED");
       },
       child: Container(
         height: 150,
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20.0)),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(100),
-                blurRadius: 10.0,
-              ),
-            ]),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Image(image: AssetImage('assets/images/marche.jpg')),
-              //Divider
-              ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(100),
+              blurRadius: 10.0,
+            ),
+          ],
+        ),
+        /*child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),*/
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            //Left column
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: Image.asset('assets/images/italy.png'),
+                ),
+                Text("PROVA"),
+              ],
+            ),
+            //Center divider
+            Container(
+              height: 100,
+              child: ClipRRect(
                 borderRadius: BorderRadius.all(
                   Radius.circular(15),
                 ),
                 child: VerticalDivider(
-                  color: Colors.grey.shade400,
-                  thickness: 8,
+                  color: Colors.grey.shade300,
+                  thickness: 6,
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
+            ),
+            //Right column
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Center(
+                  child: Text(
                     //Error without -1
                     itemsDataToDisplay[index - 1],
                     style: const TextStyle(
-                      fontSize: 28,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

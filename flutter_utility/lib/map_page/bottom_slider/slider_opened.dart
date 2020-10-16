@@ -126,11 +126,9 @@ class OpenedSliderState extends State<OpenedSlider> {
     return Container(
         height: 200,
         width: MediaQuery.of(context).size.width,
-        child: ListView.builder(
-          physics: NeverScrollableScrollPhysics(),
+        child: PageView.builder(
           itemCount: markers != null ? markers.length : 0,
-          shrinkWrap: true,
-          controller: scrollController,
+          controller: PageController(viewportFraction: 0.8),
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, position) {
             return GestureDetector(
@@ -196,27 +194,12 @@ class OpenedSliderState extends State<OpenedSlider> {
                       ],
                     ),
                   ),
+                  elevation: 5,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
               ),
-              onHorizontalDragEnd: (details) {
-                if (details.velocity.pixelsPerSecond.dx > 0) {
-                  //if (cardIndex > 0) cardIndex--;
-                  cardIndex--;
-                } else {
-                  //if (cardIndex < 2) cardIndex++;
-                  cardIndex++;
-                }
-                setState(() {
-                  scrollController.animateTo(
-                    (cardIndex) * 256.0,
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.fastOutSlowIn,
-                  );
-                });
-              },
             );
           },
         ));
@@ -247,7 +230,7 @@ class OpenedSliderState extends State<OpenedSlider> {
     ];
 
     completedResponse.elevationList.forEach((element) {
-      if (cont % 5 == 0) {
+      if (cont % 15 == 0) {
         spotList.add(FlSpot(cont, element));
       }
       cont += 1;

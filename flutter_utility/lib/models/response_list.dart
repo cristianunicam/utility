@@ -1,16 +1,11 @@
 class ResponseList {
-  final List<dynamic> id;
+  final List<dynamic> routeList;
 
-  ResponseList({this.id});
+  ResponseList({this.routeList});
 
   factory ResponseList.fromJson(List<dynamic> json) {
-    List<dynamic> routeList = [];
-
-    routeList = json;
-    //json.forEach((element) => routeList.add(element.toString()));
-
     return ResponseList(
-      id: routeList,
+      routeList: json,
     );
   }
 }
