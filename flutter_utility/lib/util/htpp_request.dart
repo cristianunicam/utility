@@ -18,12 +18,19 @@ Future<ResponseWithGPX> fetchData(String id) async {
   }
 }
 
-Future<ResponseList> fetchDataWithoutId() async {
+Future<List<ResponseList>> fetchDataWithoutId() async {
   final response = await http.get(url);
   if (response.statusCode == 200) {
+    List<ResponseList> responseList = [];
     // If the server did return a 200 OK response,
     // then parse the JSON.
-    return ResponseList.fromJson(json.decode(response.body));
+    List<Map<String, dynamic>> elementList =
+        List<Map<String, dynamic>>.from(json.decode(response.body));
+    elementList.forEach((element) {
+      responseList.add(ResponseList.fromJson(element));
+    });
+
+    return responseList;
   } else {
     throw Exception('Failed to load data');
   }

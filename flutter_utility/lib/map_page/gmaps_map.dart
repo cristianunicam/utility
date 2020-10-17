@@ -181,8 +181,11 @@ class MapPageState extends State<MapPage> {
     List<Marker> markerList = [];
 
     final location = Location(startLatitude, startLongitude);
-    final placesSearchResponse = await _places
-        .searchNearbyWithRankBy(location, "distance", type: "church");
+    final placesSearchResponse = await _places.searchNearbyWithRankBy(
+      location,
+      "distance",
+      type: "church,restaurant",
+    );
 
     //this.isLoading = false;
     if (placesSearchResponse.status == "OK") {

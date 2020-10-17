@@ -1,11 +1,17 @@
 class ResponseList {
-  final List<dynamic> routeList;
+  //final List<dynamic> routeList;
+  final String id;
+  final String difficulty;
 
-  ResponseList({this.routeList});
+  ResponseList({
+    this.id,
+    this.difficulty,
+  });
 
-  factory ResponseList.fromJson(List<dynamic> json) {
+  factory ResponseList.fromJson(Map<String, dynamic> json) {
     return ResponseList(
-      routeList: json,
+      id: json['id'],
+      difficulty: json['difficulty'],
     );
   }
 }

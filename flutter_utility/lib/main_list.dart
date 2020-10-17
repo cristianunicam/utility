@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:utility/models/response_list.dart';
 import 'package:utility/util/htpp_request.dart';
 
 import 'map_page/structure.dart';
@@ -14,24 +15,26 @@ class _MainListState extends State<MainList> {
   bool closeTopContainer = false;
   double topContainer = 0;
 
-  List<String> itemsData;
-  List<String> itemsDataToDisplay = [];
+  List<ResponseList> responseList = [];
+  //List<String> itemsData;
+  List<ResponseList> itemsDataToDisplay = [];
 
   void getPostsData() {
-    List<String> listRoute = [];
-    List<dynamic> responseList;
+    List<String> listToDisplay = [];
+    //List<ResponseList> responseList;
 
+    //Return a list of ResponseList object
     fetchDataWithoutId().then((value) {
-      responseList = value.routeList;
-
-      responseList.forEach((post) {
-        listRoute.add(
-          post['id'],
+      value.forEach((item) {
+        listToDisplay.add(
+          item.id,
         );
       });
+
       setState(() {
-        itemsData = listRoute;
-        itemsDataToDisplay.addAll(listRoute);
+        //itemsData = listRoute;
+        responseList.addAll(value);
+        itemsDataToDisplay.addAll(value);
       });
     });
   }
@@ -60,10 +63,8 @@ class _MainListState extends State<MainList> {
           height: size.height,
           child: Column(
             children: <Widget>[
-              const SizedBox(
-                height: 10,
-              ),
-              itemsData == null
+              const SizedBox(height: 10),
+              responseList.length == 0
                   ? Text("Loading")
                   : Expanded(
                       child: ListView.builder(
@@ -92,8 +93,8 @@ class _MainListState extends State<MainList> {
         onChanged: (text) {
           text = text.toLowerCase();
           setState(() {
-            itemsDataToDisplay = itemsData.where((item) {
-              var itemTitle = item.toLowerCase();
+            itemsDataToDisplay = responseList.where((item) {
+              var itemTitle = item.id.toLowerCase();
               return itemTitle.contains(text);
             }).toList();
           });
@@ -118,12 +119,14 @@ class _MainListState extends State<MainList> {
   }
 
   _itemList(index) {
+    ResponseList toDisplay = itemsDataToDisplay[index - 1];
+
     return InkWell(
       borderRadius: BorderRadius.all(Radius.circular(20.0)),
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) {
-            return AppStructure(id: itemsDataToDisplay[index - 1]);
+            return AppStructure(id: toDisplay.id);
           }),
         );
       },
@@ -131,7 +134,7 @@ class _MainListState extends State<MainList> {
         height: 150,
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+          borderRadius: BorderRadius.all(Radius.circular(30)),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -151,39 +154,127 @@ class _MainListState extends State<MainList> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  width: 80,
-                  height: 80,
+                  width: 90,
+                  height: 90,
                   child: Image.asset('assets/images/italy.png'),
                 ),
-                Text("PROVA"),
+                const SizedBox(height: 5),
+                ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  child: Container(
+                    width: 100,
+                    height: 25,
+                    color: Colors.grey.shade700,
+                    child: Center(
+                      child: Text(
+                        "Itinerario",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
             //Center divider
-            Container(
-              height: 100,
-              child: ClipRRect(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(15),
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.all(
+                Radius.circular(50),
+              ),
+              child: Container(
+                height: 100,
                 child: VerticalDivider(
                   color: Colors.grey.shade300,
-                  thickness: 6,
+                  thickness: 8,
                 ),
               ),
             ),
             //Right column
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Center(
-                  child: Text(
-                    //Error without -1
-                    itemsDataToDisplay[index - 1],
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    Text(
+                      //Error without -1
+                      toDisplay.id,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 15),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        child: Center(
+                          child: Text(
+                            toDisplay.difficulty,
+                            style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  "Abilitato a:",
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+                Text("• Passegini"),
+                Text("• Esperti"),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      child: Container(
+                        width: 50,
+                        height: 15,
+                        color: Colors.grey.shade300,
+                        child: Center(
+                          child: Text(
+                            "Miele",
+                            style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      child: Container(
+                        width: 50,
+                        height: 15,
+                        color: Colors.grey.shade300,
+                        child: Center(
+                          child: Text(
+                            "Legno",
+                            style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
